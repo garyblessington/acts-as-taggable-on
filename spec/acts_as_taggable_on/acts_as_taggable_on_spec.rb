@@ -162,4 +162,22 @@ describe "Acts As Taggable On" do
     end
   end
   
+  describe "Tagged with option since" do
+    before(:each) do
+      @taggable1 = TaggableModel.create!(:name => "Taggable 1")      
+    end
+    
+    it "should find objects tagged since the time specified" do      
+      @taggable1.tag_list = "sinceone"
+      @taggable1.save
+      TaggableModel.tagged_with('sinceone', :on => :tags, :since => 5.minutes.ago).should == [@taggable1]
+    end
+    
+    it "should not find objects that were tagged before the time specified" do
+      @taggable1.tag_list = "sincetwo"
+      @taggable1.save
+      @taggable1.taggings.first.update_attributes(:created_at => 20.minutes.ago)
+      TaggableModel.tagged_with('sincetwo', :on => :tags, :since => 10.minutes.ago).should == []
+    end
+  end
 end
